@@ -6,7 +6,7 @@ PREFIX=@PREFIX@
 
 usage() {
 	cat <<-__EOF__
-		usage: setup-desktop [-h] [gnome|plasma|xfce|mate|sway]
+		usage: setup-desktop [-h] [gnome|plasma|xfce|mate|sway|awesome]
 
 		Install a standard desktop
 
@@ -38,7 +38,7 @@ fi
 
 de="$1"
 
-valid_desktops="xfce gnome plasma mate sway none"
+valid_desktops="xfce gnome plasma mate sway awesome none"
 if [ $# -eq 1 ] && ! isin "$de" $valid_desktops; then
 	echo "$de is not a valid desktop" >&2
 	usage "1" >&2
@@ -46,7 +46,7 @@ fi
 shift
 
 while ! isin "$de" $valid_desktops; do
-	ask "Which desktop environment? ('gnome', 'plasma', 'xfce', 'mate', 'sway' or 'none')" none
+	ask "Which desktop environment? ('gnome', 'plasma', 'xfce', 'mate', 'sway' 'awesome' or 'none')" none
 	de="$resp"
 done
 
@@ -153,6 +153,35 @@ case "$de" in
 			wmenu \
 			xwayland \
 			"$@"
+		;;
+  awesome)
+		setup-xorg-base awesome ${BROWSER:-firefox} \
+			lightdm \
+			lightdm-gtk-greeter \
+			polkit \
+			lxappearance \
+			feh \
+			imagemagick \
+			thunar \
+			thunar-archive-plugin \
+			picom \
+			xautolock \
+			i3lock-color \
+			xfce4-terminal \
+			git \
+			"$@"
+		#downloading the missing component, which is needed to get a working program menu
+		git clone https://github.com/lcpz/awesome-freedesktop.git /etc/xdg/awesome/freedesktop &&
+		#download the default working awesome configuration
+		wget -q https://github.com/megvadulthangya/alpine-conf/raw/refs/heads/awesome-wm/files/rc.lua -O /etc/xdg/awesome/rc.lua &&
+		#download the working picom conf
+		wget -q https://github.com/megvadulthangya/alpine-conf/raw/refs/heads/awesome-wm/files/picom.conf -O /etc/xdg/picom.conf &&
+		#download i3lock locking script
+		wget -q https://github.com/megvadulthangya/alpine-conf/raw/refs/heads/awesome-wm/files/locker.sh -O /etc/xdg/awesome/locker.sh &&
+		mkdir /usr/share/wallpapers &&
+		wget -q https://github.com/megvadulthangya/alpine-conf/raw/refs/heads/awesome-wm/files/wallpapers.tgz &&
+		tar -xvzf wallpapers.tgz -C /usr/share/wallpapers &&
+		rc-update add lightdm
 		;;
 	*)
 		usage "1" >&2
