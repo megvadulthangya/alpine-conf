@@ -159,7 +159,7 @@ case "$de" in
 			lightdm \
 			lightdm-gtk-greeter \
 			polkit \
-			lxappearance \
+			font-terminus \
 			feh \
 			imagemagick \
 			thunar \
